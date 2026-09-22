@@ -10,6 +10,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Load dataframe
+df = pickle.load(open("df.pkl", "rb"))
+
+# Try loading TF-IDF pickles, rebuild if missing or broken
+try:
+    tfidf = pickle.load(open("tfidf.pkl", "rb"))
+    tfidf_matrix = pickle.load(open("tfidf_matrix.pkl", "rb"))
+except Exception:
+    print("Rebuilding TF-IDF model...")
+    tfidf = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf.fit_transform(df['overview'])
+    pickle.dump(tfidf, open("tfidf.pkl", "wb"))
+    pickle.dump(tfidf_matrix, open("tfidf_matrix.pkl", "wb"))
 
 # =========================
 # ENV
